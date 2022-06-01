@@ -1,0 +1,16 @@
+{
+  "imports": {
+    "@worker-tools/router": "https://ghuc.cc/worker-tools/router/index.ts",
+    "@worker-tools/middleware": "https://ghuc.cc/worker-tools/middleware/index.ts",
+    "@worker-tools/response-creators": "https://ghuc.cc/worker-tools/response-creators/index.ts",
+    "@worker-tools/kv-storage": "https://ghuc.cc/worker-tools/kv-storage/index.ts",
+    "@worker-tools/html": "https://ghuc.cc/worker-tools/html/index.ts",
+    "@worker-tools/json-fetch": "https://ghuc.cc/worker-tools/json-fetch/index.ts",
+    "@worker-tools/structured-json": "https://ghuc.cc/worker-tools/structured-json/index.ts",
+    "@worker-tools/location-polyfill": "https://ghuc.cc/worker-tools/location-polyfill/src/index.ts",
+    "web-uuid": "https://ghuc.cc/qwtel/web-uuid/index.ts",
+    "typed-array-utils": "https://ghuc.cc/qwtel/typed-array-utils/index.ts",
+    "fido2-lib/": "https://deno.land/x/fido2@3.1.7/",
+    "fido2-lib": "https://deno.land/x/fido2@3.1.7/dist/main.js"
+  }
+}
