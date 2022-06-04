@@ -10,7 +10,6 @@
     "@worker-tools/location-polyfill": "https://ghuc.cc/worker-tools/location-polyfill/src/index.ts",
     "web-uuid": "https://ghuc.cc/qwtel/web-uuid/index.ts",
     "typed-array-utils": "https://ghuc.cc/qwtel/typed-array-utils/index.ts",
-    "fido2-lib/": "https://deno.land/x/fido2@3.1.7/",
-    "fido2-lib": "https://deno.land/x/fido2@3.1.7/dist/main.js"
+    "fido2-lib/": "https://deno.land/x/fido2@3.1.7/"
   }
 }

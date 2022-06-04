@@ -1,9 +1,9 @@
 // deno-lint-ignore-file no-explicit-any no-unused-vars require-await ban-unused-ignore
 import { WorkerRouter } from '@worker-tools/router'
-import { combine, plainCookies, storageSession, accepts, bodyParser, contentTypes, FORM, FORM_DATA } from '@worker-tools/middleware';
+import { combine, plainCookies, storageSession, accepts, bodyParser, contentTypes, flushed, FORM, FORM_DATA } from '@worker-tools/middleware';
 import { html, HTMLResponse } from '@worker-tools/html'
 import { StorageArea } from '@worker-tools/kv-storage';
-import { ok, forbidden, unauthorized, badRequest, conflict } from '@worker-tools/response-creators';
+import { ok, unauthorized, badRequest, conflict } from '@worker-tools/response-creators';
 import { JSONResponse } from '@worker-tools/json-fetch'
 import * as Structured from '@worker-tools/structured-json';
 import { WebUUID } from 'web-uuid';
@@ -20,7 +20,7 @@ type User = {
   id: BufferSource,
   name: string,
   displayName: string,
-  authenticators: Map<any,any>[],
+  authenticators: { [x: string]: any }[],
 }
 
 type Session = {
@@ -36,9 +36,10 @@ const f2l = new Fido2Lib({
 
 const sessionMW = combine(
   plainCookies(),
+  flushed(),
   storageSession<Session>({ 
     defaultSession: { loggedIn: false }, 
-    storage: new StorageArea('session') 
+    storage: new StorageArea('session'),
   }),
 )
 
@@ -53,8 +54,6 @@ const jsonMW = combine(
 )
 
 export const router = new WorkerRouter()
-
-router.addEventListener('error', ev => console.warn(ev))
 
 const style = html`
   <style>
@@ -73,74 +72,100 @@ const style = html`
     }
   </style>
 `
-const script = html`
-  <script type="module">
-    import { JSONRequest } from 'https://cdn.skypack.dev/@worker-tools/json-fetch'
-    import * as Structured from 'https://cdn.skypack.dev/@worker-tools/structured-json'
-
-    // Sadly, this is necessary to stringify WebAuthn credentials...
-    function credToJSON(x) {
-      if (x instanceof ArrayBuffer) return x
-      if (Array.isArray(x)) {
-        const arr = [];
-        for (const i of x) arr.push(credToJSON(i));
-        return arr
-      }
-      if (x != null && typeof x === 'object') {
-        const obj = {};
-        for (const key in x)
-          if (typeof x[key] !== 'function')
-            obj[key] = credToJSON(x[key])
-        return obj
-      }
-      return x
-    }
-
-    const form = document.querySelector('form');
-    form.addEventListener('submit', async (ev) => {
-      ev.preventDefault();
-      if (ev.submitter.formAction.endsWith('/register')) {
-        const res = await fetch('/register', { method: 'POST', body: new FormData(form) });
-        if (res.ok) {
-          const publicKey = Structured.fromJSON(await res.json());
-          const cred = await navigator.credentials.create({ publicKey });
-          const body = Structured.toJSON(credToJSON(cred));
-          const res2 = await fetch(new JSONRequest('/response', { method: 'POST', body }));
-          if (res2.ok) location.reload()
-        }
-      }
-      else if (ev.submitter.formAction.endsWith('/login')) {
-        const res = await fetch('/login', { method: 'POST', body: new FormData(form) });
-        if (res.ok) {
-          const publicKey = Structured.fromJSON(await res.json());
-          const cred = await navigator.credentials.get({ publicKey });
-          const body = Structured.toJSON(credToJSON(cred));
-          const res2 = await fetch(new JSONRequest('/response', { method: 'POST', body }));
-          if (res2.ok) location.reload()
-        }
-      }
-      else if (ev.submitter.formAction.endsWith('/logout')) {
-        const res = await fetch('/logout', { method: 'POST' });
-        if (res.ok) location.reload()
-      }
-    })
-  </script>
-`
-
-router.get('/', sessionMW, (req, { session }) => {
+router.get('/', sessionMW, async (req, { session }) => {
   return new HTMLResponse(html`<html>
 <body>
   ${style}
   <form method="POST">
   ${session.loggedIn 
-    ? html`<p>Hello, ${session.userHandle}.</p><button type="submit" formaction="/logout">Logout</button>`
+    ? html`<div>
+      <p>Hello, ${session.userHandle}.</p><button type="submit" formaction="/logout">Logout</button>
+      ${async () => {
+        const user = Structured.toJSON(await users.get<User>(session.userHandle!))
+        delete user.$types
+        return html`<pre>${JSON.stringify(user, null, 2)}</pre>`;
+      }}
+    </div>`
     : html`<div>
-      <input type="text" name="user-handle" />
+      <input type="text" name="user-handle" placeholder="Username" />
       <button type="submit" formaction="/register">Register</button>
       <button type="submit" formaction="/login">Login</button>
+      <button type="submit" formaction="/response" style="display:none">Scan key...</button>
+      <span></span>
     </div>`}
   </form>
-  ${script}
+  <script type="module">
+    import { JSONRequest } from 'https://cdn.skypack.dev/@worker-tools/json-fetch'
+    import * as Structured from 'https://cdn.skypack.dev/@worker-tools/structured-json'
+
+    const form = document.querySelector('form');
+    const input = form.querySelector('input[name=user-handle]')
+    const registerButton = form.querySelector('button[formaction$=register]')
+    const loginButton = form.querySelector('button[formaction$=login]')
+    const responseButton = form.querySelector('button[formaction$=response]')
+    const hint = form.querySelector('span')
+
+    let publicKey;
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      if (ev.submitter.formAction.endsWith('/register')) {
+        hint.textContent = ''
+        const orig = registerButton.textContent;
+        registerButton.textContent = 'Loading...'
+
+        const res = await fetch('/register', { method: 'POST', body: new FormData(form) });
+        if (res.ok) {
+          publicKey = Structured.fromJSON(await res.json());
+          registerButton.style.display = 'none';
+          loginButton.style.display = 'none';
+          responseButton.style.display = 'inline';
+          input.disabled = true;
+        } else {
+          registerButton.textContent = orig;
+          hint.textContent = res.statusText
+        }
+      }
+      else if (ev.submitter.formAction.endsWith('/login')) {
+        hint.textContent = ''
+        const orig = loginButton.textContent;
+        loginButton.textContent = 'Loading...'
+
+        const res = await fetch('/login', { method: 'POST', body: new FormData(form) });
+        if (res.ok) {
+          publicKey = Structured.fromJSON(await res.json());
+          registerButton.style.display = 'none';
+          loginButton.style.display = 'none';
+          responseButton.style.display = 'inline';
+          input.disabled = true;
+        } else  {
+          loginButton.textContent = orig;
+          hint.textContent = res.statusText
+        }
+      }
+      else if (ev.submitter.formAction.endsWith('/response')) {
+        if (publicKey) {
+          const cred = 'attestation' in publicKey
+            ? await navigator.credentials.create({ publicKey })
+            : await navigator.credentials.get({ publicKey });
+          const body = Structured.toJSON(credToJSON(cred));
+          const res2 = await fetch(new JSONRequest('/response', { method: 'POST', body }));
+          if (res2.ok) { await res2.text(); location.reload() }
+        }
+      }
+      else if (ev.submitter.formAction.endsWith('/logout')) {
+        const res = await fetch('/logout', { method: 'POST' });
+        if (res.ok) { await res.text(); location.reload() }
+      }
+    })
+
+    // Sadly, this is necessary to stringify WebAuthn credentials...
+    function credToJSON(x) {
+      if (x instanceof ArrayBuffer) return x;
+      if (Array.isArray(x)) { const arr = []; for (const i of x) arr.push(credToJSON(i)); return arr }
+      if (x != null && typeof x === 'object') { const obj = {}; for (const key in x) if (typeof x[key] !== 'function') obj[key] = credToJSON(x[key]); return obj }
+      return x;
+    }
+  </script>
 </body>
 
 </html>`)
@@ -167,8 +192,8 @@ router.post('/register', combine(sessionMW, formMW), async (req, { session, body
 
 const getAllowCredentials = (user: User) => user.authenticators.map(authr => ({
   type: 'public-key',
-  id: authr.get('credId'),
-  transports: authr.get('transports'),
+  id: authr.credId,
+  transports: authr.transports,
 })) as any
 
 router.post('/login', combine(sessionMW, formMW), async (req, { session, body }) => {
@@ -190,9 +215,9 @@ router.post('/login', combine(sessionMW, formMW), async (req, { session, body })
 
 router.post('/response', combine(sessionMW, jsonMW), async (req, { session, body }) => {
   const data = Structured.fromJSON(body)
-  console.log(data)
+  // console.log(data)
 
-  if (!session.userHandle) throw forbidden();
+  if (!session.userHandle) throw unauthorized();
 
   if (data.response.attestationObject != null) {
     // /register
@@ -202,12 +227,13 @@ router.post('/response', combine(sessionMW, jsonMW), async (req, { session, body
       factor: "either"
     })
     if (!reg.authnrData) throw unauthorized();
+    console.log(reg)
 
     const user = {
       id: session.userId,
       name: session.userHandle,
       displayName: session.userHandle,
-      authenticators: [reg.authnrData],
+      authenticators: [Object.fromEntries(reg.authnrData)],
     }
 
     await users.set(user.name, user)
@@ -222,7 +248,7 @@ router.post('/response', combine(sessionMW, jsonMW), async (req, { session, body
     const user = await users.get<User>(session.userHandle)
     if (!user) throw unauthorized()
 
-    const authr = user.authenticators.find(x => compareBufferSources(x.get('credId'), data.rawId))
+    const authr = user.authenticators.find(x => compareBufferSources(x.credId, data.rawId))
     if (!authr) throw unauthorized();
 
     const reg = await f2l.assertionResult(data, {
@@ -230,13 +256,14 @@ router.post('/response', combine(sessionMW, jsonMW), async (req, { session, body
       challenge: session.challenge as any,
       origin: location.origin,
       factor: "either",
-      publicKey: authr.get('credentialPublicKeyPem'),
-      prevCounter: authr.get('counter'),
+      publicKey: authr.credentialPublicKeyPem,
+      prevCounter: authr.counter,
       userHandle: user.id,
     })
     if (!reg.authnrData) throw unauthorized();
+    console.log(reg)
 
-    authr.set('counter', reg.authnrData.get('counter')) 
+    authr.counter = reg.authnrData.get('counter');
 
     await users.set(session.userHandle, user)
     session.loggedIn = true
@@ -263,15 +290,17 @@ router.recover(
     if (type === 'application/json') { 
       return new JSONResponse({ 
         error: { status, statusText, message } 
-      }, { status, statusText })
+      }, { status, statusText }) // FIXME
     }
     return new HTMLResponse(html`<html>
       <body>
         ${style}
         Something went wrong: ${status} ${statusText} ${message}
       </body>
-    </html>`, { status, statusText })
+    </html>`, { status, statusText }) // FIXME
   },
 )
+
+router.addEventListener('error', ev => console.warn(ev))
 
 router.get('/favicon.ico', () => ok())

@@ -5,9 +5,9 @@ specifiers:
   '@worker-tools/json-fetch': 2.1.0-pre.6
   '@worker-tools/kv-storage': 0.1.0-pre.9
   '@worker-tools/location-polyfill': ^0.4.1
-  '@worker-tools/middleware': 0.1.0-pre.30
+  '@worker-tools/middleware': 0.1.0-pre.32
   '@worker-tools/response-creators': 1.2.0-pre.6
-  '@worker-tools/router': 0.3.0-pre.3
+  '@worker-tools/router': 0.3.0-pre.4
   '@worker-tools/structured-json': 0.1.0-pre.1
   esbuild: ^0.14.42
   fido2-lib: github:qwtel/fido2-lib#dev
@@ -19,9 +19,9 @@ dependencies:
   '@worker-tools/json-fetch': 2.1.0-pre.6
   '@worker-tools/kv-storage': 0.1.0-pre.9
   '@worker-tools/location-polyfill': 0.4.1
-  '@worker-tools/middleware': 0.1.0-pre.30
+  '@worker-tools/middleware': 0.1.0-pre.32
   '@worker-tools/response-creators': 1.2.0-pre.6
-  '@worker-tools/router': 0.3.0-pre.3
+  '@worker-tools/router': 0.3.0-pre.4
   '@worker-tools/structured-json': 0.1.0-pre.1
   fido2-lib: github.com/qwtel/fido2-lib/77fb5e68328ad27637123becbb1cd730532f8b20
   typed-array-utils: 0.2.4
@@ -177,8 +177,8 @@ packages:
       '@cloudflare/workers-types': 2.2.2
     dev: false
 
-  /@worker-tools/middleware/0.1.0-pre.30:
-    resolution: {integrity: sha512-g9kgMeWq5svUy3L3JVidbXiLF+1dWvyqn4iZKA3jzi6HMemqw+7tY46MAl+YM0TtUzEsHCkAZ/LI3RPEdKrnEg==}
+  /@worker-tools/middleware/0.1.0-pre.32:
+    resolution: {integrity: sha512-asgpSeW4Ag9jxUDPJoOgRTJ/zNz/KzB/NMS8D/V8qk9TyKuG0zi1lWQepWlS+2juO3XL2Ke0Dy7u6jkeL28ztw==}
     dependencies:
       '@worker-tools/encrypted-cookie-store': 0.3.0-pre.7
       '@worker-tools/extendable-promise': 0.2.0-pre.11
@@ -209,10 +209,10 @@ packages:
     resolution: {integrity: sha512-tY9CvyegTXzI0dCmvw25CwmctFa8ojhjmTLZmvPNPF2ETT3U4o4TvgFZd3eHcr9PKB4fF55TYZeHfgIsjCQ6Qw==}
     dev: false
 
-  /@worker-tools/router/0.3.0-pre.3:
-    resolution: {integrity: sha512-NHeUVSGzzv0puST382foUL4+BC3JVeAt1A1NzUfTCuoJT7dJ0ph8QttlmBGPR5v0trX1cMiTZJTVTNPfmMGw8g==}
+  /@worker-tools/router/0.3.0-pre.4:
+    resolution: {integrity: sha512-cVc5hXIo9iUza5CWEbRpwqYgsiHzkgeWYcqx/VtwdbpQo9gSO7bX8G8rA7ZEyJO3giq+X5DtntwtHyXZptB5iA==}
     dependencies:
-      '@worker-tools/middleware': 0.1.0-pre.30
+      '@worker-tools/middleware': 0.1.0-pre.32
       '@worker-tools/resolvable-promise': 0.2.0-pre.6
       '@worker-tools/response-creators': 1.2.0-pre.6
     dev: false
@@ -228,7 +228,7 @@ packages:
   /@worker-tools/stream-response/0.1.0-pre.4:
     resolution: {integrity: sha512-PHMaXNbaavvtPWuPTjslNMmbFX0Wv4iKsa9ZiL+KkcTuXwSh5okMShYxt0st0bx4C137kIK/bBQqw/JBEKlP9Q==}
     dependencies:
-      typed-array-utils: 0.2.4
+      typed-array-utils: 0.3.0-pre.0
       whatwg-stream-to-async-iter: 0.6.2
     dev: false
 
@@ -778,6 +778,10 @@ packages:
 
   /typed-array-utils/0.2.4:
     resolution: {integrity: sha512-tttiItskXSSYIkbPfnYmSfL4nkcIxjUKyD4pZJCiwstGjpU4UwDBQfE6UR67xxikVFFcGduo3JCds4yKiA0RVQ==}
+    dev: false
+
+  /typed-array-utils/0.3.0-pre.0:
+    resolution: {integrity: sha512-hzkk8/bpvqCayQnQAno11R8qOWHrkTHR9k+JYVEBpHAQMF2YfPqBMKKkSmeSw2Qd4ri+QugFmj7ca4ckSr4Z4Q==}
     dev: false
 
   /typeson-registry/3.0.0:
