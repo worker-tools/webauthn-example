@@ -1,5 +1,5 @@
 main = "cloudflare.ts"
-compatibility_date = "2022-05-31"
+compatibility_date = "2022-06-06"
 compatibility_flags = ["streams_enable_constructors"]
 account_id = 'efb289061241436254219b424fcea4cf'
 kv_namespaces = [ 
@@ -7,6 +7,3 @@ kv_namespaces = [
 ]
 [vars]
   DEFAULT_KV_NAMESPACE = "KV_STORAGE"
-
-# [build]
-#   command = "npx esbuild --bundle --sourcemap --outfile=dist/worker.js cloudflare.ts"

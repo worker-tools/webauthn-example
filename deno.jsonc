@@ -1,6 +1,6 @@
 {
   "importMap": "./import-map.json",
   "tasks": {
-    "serve": "export DEFAULT_KV_URL=sqlite://./webauthn.sqlite && deno run -A --watch --location=http://localhost:8001 --no-check ./deno.ts"
-  },
+    "serve": "export DEFAULT_KV_URL=sqlite://./webauthn.sqlite && deno run -A --watch --location=http://localhost:8000 --no-check ./deno.ts"
+  }
 }
