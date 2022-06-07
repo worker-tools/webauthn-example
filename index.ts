@@ -140,8 +140,6 @@ router.get('/', sessionMW, async (req, { session }) => {
         const publicKey = Structured.fromJSON(await res.json());
         showResponse();
         return publicKey
-      } else if (res.status === 409) {
-        return login();
       } else {
         registerButton.textContent = orig;
         hint.textContent = res.statusText
@@ -165,10 +163,10 @@ router.get('/', sessionMW, async (req, { session }) => {
 
     async function handleResponse(publicKey) {
       if (publicKey) {
-        responseButton.disabled = true;
         const cred = 'attestation' in publicKey
           ? await navigator.credentials.create({ publicKey })
           : await navigator.credentials.get({ publicKey });
+        responseButton.disabled = true;
         const body = Structured.toJSON(credToJSON(cred));
         const res = await fetch(new JSONRequest('/response', { method: 'POST', body }));
         if (res.ok) { 

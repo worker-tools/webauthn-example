@@ -1,14 +1,11 @@
 {
-  "name": "fido",
+  "private": true,
+  "name": "@worker-tools/webauthn-example",
   "version": "1.0.0",
   "description": "",
   "main": "cloudflare.ts",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Florian Klampfer <mail@qwtel.com> (https://qwtel.com/)",
+  "license": "MIT",
   "dependencies": {
     "@worker-tools/html": "2.0.0-pre.13",
     "@worker-tools/json-fetch": "2.1.0-pre.6",
@@ -21,5 +18,17 @@
     "fido2-lib": "github:qwtel/fido2-lib",
     "typed-array-utils": "^0.2.4",
     "web-uuid": "0.1.0-pre.1"
-  }
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/worker-tools/webauthn-example.git"
+  },
+  "bugs": {
+    "url": "https://github.com/worker-tools/webauthn-example/issues"
+  },
+  "homepage": "https://workers.tools/examples/webauthn"
 }
