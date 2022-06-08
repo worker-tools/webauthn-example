@@ -351,4 +351,4 @@ router.recover(
 
 router.addEventListener('error', ev => console.warn(ev.message));
 
-router.get('/favicon.ico', () => ok());
+router.get('/favicon.ico', () => fetch('https://workers.tools/favicon.ico'));
