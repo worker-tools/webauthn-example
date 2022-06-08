@@ -134,7 +134,6 @@ router.get('/', sessionMW, async (req, { session }) => {
 
     async function register() {
       hint.textContent = ''
-      const orig = registerButton.textContent;
       registerButton.textContent = 'Loading…';
       const res = await fetch('/register', { method: 'POST', body: new FormData(form) });
       if (res.ok) {
@@ -142,14 +141,13 @@ router.get('/', sessionMW, async (req, { session }) => {
         showResponse();
         return publicKey
       } else {
-        registerButton.textContent = orig;
+        registerButton.textContent = 'Register';
         hint.textContent = res.statusText
       }
     }
 
     async function login() {
       hint.textContent = '';
-      const orig = loginButton.textContent;
       loginButton.textContent = 'Loading…';
       const res = await fetch('/login', { method: 'POST', body: new FormData(form) });
       if (res.ok) {
@@ -157,7 +155,7 @@ router.get('/', sessionMW, async (req, { session }) => {
         showResponse();
         return publicKey;
       } else  {
-        loginButton.textContent = orig;
+        loginButton.textContent = 'Login';
         hint.textContent = res.statusText;
       }
     }
