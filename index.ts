@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any no-unused-vars require-await ban-unused-ignore
 import { WorkerRouter } from '@worker-tools/router'
-import { combine, plainCookies, storageSession, accepts, bodyParser, contentTypes, flushed, FORM, FORM_DATA } from '@worker-tools/middleware';
+import { combine, basics, plainCookies, storageSession, accepts, bodyParser, contentTypes, flushed, FORM, FORM_DATA } from '@worker-tools/middleware';
 import { html, HTMLResponse } from '@worker-tools/html'
 import { StorageArea } from '@worker-tools/kv-storage';
 import { ok, unauthorized, badRequest, conflict, seeOther } from '@worker-tools/response-creators';
@@ -33,7 +33,10 @@ const location = self.location ?? new URL('http://localhost:8000');
 const users = new StorageArea('user')
 
 const fido2 = new Fido2Lib({
-  authenticatorUserVerification: 'preferred' // setting a fixed value prevents warning in chrome
+  rpId: "webauthn.qwtel.workers.dev",
+  rpName: "Workers WebAuthn Demo",
+  rpIcon: "https://workers.tools/assets/img/logo.png",
+  authenticatorUserVerification: 'preferred', // setting a value prevents warning in chrome
 })
 
 const sessionMW = combine(
@@ -55,7 +58,7 @@ const jsonMW = combine(
   bodyParser(),
 )
 
-export const router = new WorkerRouter()
+export const router = new WorkerRouter(x => x, { fatal: true })
 
 const style = html`
   <style>
@@ -81,6 +84,10 @@ const style = html`
 `
 router.get('/', sessionMW, async (req, { session }) => {
   return new HTMLResponse(html`<!doctype html><html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+</head>
 <body>
   ${style}
   <h1>Workers WebAuthn Example</h1>
@@ -101,7 +108,7 @@ router.get('/', sessionMW, async (req, { session }) => {
         <input type="text" name="user-handle" placeholder="Username" />
         <button type="submit" formaction="/register">Register</button>
         <button type="submit" formaction="/login">Login</button>
-        <button type="submit" formaction="/response" hidden>Scan key…</button>
+        <button type="submit" formaction="/response" hidden>Sign request…</button>
         <span class="hint"></span>
       </div>`}
   </form>
@@ -254,7 +261,6 @@ router.post('/login', combine(sessionMW, formMW), async (req, { session, body })
 
   return new JSONResponse(Structured.toJSON(options))
 })
-
 
 router.post('/response', combine(sessionMW, jsonMW), async (req, { session, body }) => {
   const data = Structured.fromJSON(body)

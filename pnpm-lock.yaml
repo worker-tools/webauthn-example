@@ -1,17 +1,17 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@worker-tools/html': 2.0.0-pre.13
-  '@worker-tools/json-fetch': 2.1.0-pre.6
-  '@worker-tools/kv-storage': 0.1.0-pre.9
-  '@worker-tools/location-polyfill': 0.5.0-pre.0
-  '@worker-tools/middleware': 0.1.0-pre.33
-  '@worker-tools/response-creators': 1.2.0-pre.6
-  '@worker-tools/router': 0.3.0-pre.5
-  '@worker-tools/structured-json': 0.1.0-pre.3
+  '@worker-tools/html': ^2.0.0-pre.13
+  '@worker-tools/json-fetch': ^2.1.0-pre.6
+  '@worker-tools/kv-storage': ^0.1.0-pre.9
+  '@worker-tools/location-polyfill': ^0.5.0-pre.0
+  '@worker-tools/middleware': ^0.1.0-pre.33
+  '@worker-tools/response-creators': ^1.2.0-pre.6
+  '@worker-tools/router': ^0.3.0-pre.5
+  '@worker-tools/structured-json': ^0.1.0-pre.3
   fido2-lib: github:qwtel/fido2-lib
   typed-array-utils: ^0.2.4
-  web-uuid: 0.1.0-pre.1
+  web-uuid: ^0.1.0-pre.1
 
 dependencies:
   '@worker-tools/html': 2.0.0-pre.13
@@ -21,8 +21,8 @@ dependencies:
   '@worker-tools/middleware': 0.1.0-pre.33
   '@worker-tools/response-creators': 1.2.0-pre.6
   '@worker-tools/router': 0.3.0-pre.5
-  '@worker-tools/structured-json': 0.1.0-pre.3
-  fido2-lib: github.com/qwtel/fido2-lib/77fb5e68328ad27637123becbb1cd730532f8b20
+  '@worker-tools/structured-json': 0.1.0-pre.4
+  fido2-lib: github.com/qwtel/fido2-lib/129e72c1731d27b21b8a408fe0817fcca8cc97f9
   typed-array-utils: 0.2.4
   web-uuid: 0.1.0-pre.1
 
@@ -109,7 +109,7 @@ packages:
   /@worker-tools/cloudflare-kv-storage/0.9.0-pre.6:
     resolution: {integrity: sha512-LMKbvkvYQI8i5pxPHxiUBLe3cTStjHc23v29XYWnpAx2hOev/vZJUyxr5wKPTBmGIeXKvYMK31XV4v8Q4gOEOA==}
     dependencies:
-      '@worker-tools/structured-json': 0.1.0-pre.3
+      '@worker-tools/structured-json': 0.1.0-pre.4
       idb-key-to-string: 0.2.0
       kv-storage-interface: 0.2.0
       msgpackr: 1.6.1
@@ -118,7 +118,7 @@ packages:
   /@worker-tools/deno-kv-storage/0.6.0-pre.1:
     resolution: {integrity: sha512-o4vdzP7tIs3u7i4Fnv2UeM7ThJH63JBt6kxqlLP+Uf1xG4+q5mcavGB4u/OJbKgG5jE1GMflX71aGTAZ7hCSGA==}
     dependencies:
-      '@worker-tools/structured-json': 0.1.0-pre.3
+      '@worker-tools/structured-json': 0.1.0-pre.4
       idb-key-to-string: 0.2.0
       kv-storage-interface: 0.2.0
     dev: false
@@ -222,8 +222,8 @@ packages:
       whatwg-stream-to-async-iter: 0.6.2
     dev: false
 
-  /@worker-tools/structured-json/0.1.0-pre.3:
-    resolution: {integrity: sha512-eyw/EAwfdhsHC6nJ3IlK3z5LY8upsxojhZK2J/yRy9UlZR2EzAr5sxAHvCTz9c+W0oGNB0nPbmToEkjEBWAILw==}
+  /@worker-tools/structured-json/0.1.0-pre.4:
+    resolution: {integrity: sha512-5Nu0L/1lS9bnui+pqVZn8uRg9HWWQyYfr0zwtO1GVojzom5AFS1l/Zw9UOVILFkNM+HwsOljOv2Q+5VQU/lTTA==}
     dependencies:
       typeson: 7.0.2
       typeson-registry: 3.0.0
@@ -622,10 +622,10 @@ packages:
       webidl-conversions: 7.0.0
     dev: false
 
-  github.com/qwtel/fido2-lib/77fb5e68328ad27637123becbb1cd730532f8b20:
-    resolution: {tarball: https://codeload.github.com/qwtel/fido2-lib/tar.gz/77fb5e68328ad27637123becbb1cd730532f8b20}
+  github.com/qwtel/fido2-lib/129e72c1731d27b21b8a408fe0817fcca8cc97f9:
+    resolution: {tarball: https://codeload.github.com/qwtel/fido2-lib/tar.gz/129e72c1731d27b21b8a408fe0817fcca8cc97f9}
     name: fido2-lib
-    version: 3.1.7
+    version: 3.2.0
     dependencies:
       '@hexagon/base64': 1.0.19
       '@peculiar/webcrypto': 1.4.0

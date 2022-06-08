@@ -8,7 +8,7 @@ kv_namespaces = [
 ]
 [vars]
   DEFAULT_KV_NAMESPACE = "KV_STORAGE"
-  WORKER_LOCATION = 'http://localhost:8888'
+  WORKER_LOCATION = 'http://localhost:8787'
 
 [env.production]
 name = "webauthn"
