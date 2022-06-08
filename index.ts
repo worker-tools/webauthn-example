@@ -58,7 +58,7 @@ const jsonMW = combine(
   bodyParser(),
 )
 
-export const router = new WorkerRouter(x => x, { fatal: true })
+export const router = new WorkerRouter()
 
 const style = html`
   <style>
@@ -222,7 +222,7 @@ router.get('/', sessionMW, async (req, { session }) => {
 })
 
 router.post('/register', combine(sessionMW, formMW), async (req, { session, body }) => {
-  const userHandle = body.get('user-handle') as string;
+  const userHandle = (<string>body.get('user-handle')).trim()
   if (!userHandle) throw badRequest()
   if (await users.get<User>(userHandle)) { throw conflict() }
 
@@ -247,7 +247,7 @@ const getAllowCredentials = (user: User) => user.authenticators.map(authr => ({
 })) as any
 
 router.post('/login', combine(sessionMW, formMW), async (req, { session, body }) => {
-  const userHandle = body.get('user-handle') as string;
+  const userHandle = (<string>body.get('user-handle')).trim()
   if (!userHandle) throw badRequest()
 
   const user = await users.get<User>(userHandle)
@@ -267,6 +267,9 @@ router.post('/response', combine(sessionMW, jsonMW), async (req, { session, body
 
   if (!session.userHandle) throw unauthorized();
 
+  // FIXME: Delete users after 1 hour
+  const opts = { expirationTtl: 60 * 60 }
+
   if (data.response.attestationObject != null) {
     // register
     const reg = await fido2.attestationResult(data, {
@@ -284,9 +287,7 @@ router.post('/response', combine(sessionMW, jsonMW), async (req, { session, body
       authenticators: [Object.fromEntries(reg.authnrData)],
     }
 
-    await users.set(user.name, user, { 
-      expirationTtl: 60 * 60, // FIXME: Demo only, remove for real app
-    }) 
+    await users.set(user.name, user, opts) 
     session.loggedIn = true
     delete session.userId
     delete session.challenge;
@@ -318,7 +319,7 @@ router.post('/response', combine(sessionMW, jsonMW), async (req, { session, body
 
     auth.counter = reg.authnrData.get('counter');
 
-    await users.set(session.userHandle, user)
+    await users.set(session.userHandle, user, opts)
     session.loggedIn = true
     delete session.challenge;
 
@@ -339,8 +340,8 @@ router.recover(
   '*', 
   contentTypes(['text/html', 'application/json', '*/*']), 
   (req, { type, response: { status, statusText }, error }) => {
-    const message = error instanceof Error ? error.message : ''
     if (error) console.warn(error)
+    const message = error instanceof Error ? error.message : ''
     if (type === 'application/json') { 
       return new JSONResponse({ 
         error: { status, statusText, message } 
