@@ -4,11 +4,11 @@ specifiers:
   '@worker-tools/html': 2.0.0-pre.13
   '@worker-tools/json-fetch': 2.1.0-pre.6
   '@worker-tools/kv-storage': 0.1.0-pre.9
-  '@worker-tools/location-polyfill': ^0.4.1
-  '@worker-tools/middleware': 0.1.0-pre.32
+  '@worker-tools/location-polyfill': 0.5.0-pre.0
+  '@worker-tools/middleware': 0.1.0-pre.33
   '@worker-tools/response-creators': 1.2.0-pre.6
-  '@worker-tools/router': 0.3.0-pre.4
-  '@worker-tools/structured-json': 0.1.0-pre.1
+  '@worker-tools/router': 0.3.0-pre.5
+  '@worker-tools/structured-json': 0.1.0-pre.3
   fido2-lib: github:qwtel/fido2-lib
   typed-array-utils: ^0.2.4
   web-uuid: 0.1.0-pre.1
@@ -17,20 +17,16 @@ dependencies:
   '@worker-tools/html': 2.0.0-pre.13
   '@worker-tools/json-fetch': 2.1.0-pre.6
   '@worker-tools/kv-storage': 0.1.0-pre.9
-  '@worker-tools/location-polyfill': 0.4.1
-  '@worker-tools/middleware': 0.1.0-pre.32
+  '@worker-tools/location-polyfill': 0.5.0-pre.0
+  '@worker-tools/middleware': 0.1.0-pre.33
   '@worker-tools/response-creators': 1.2.0-pre.6
-  '@worker-tools/router': 0.3.0-pre.4
-  '@worker-tools/structured-json': 0.1.0-pre.1
+  '@worker-tools/router': 0.3.0-pre.5
+  '@worker-tools/structured-json': 0.1.0-pre.3
   fido2-lib: github.com/qwtel/fido2-lib/77fb5e68328ad27637123becbb1cd730532f8b20
   typed-array-utils: 0.2.4
   web-uuid: 0.1.0-pre.1
 
 packages:
-
-  /@cloudflare/workers-types/2.2.2:
-    resolution: {integrity: sha512-kaMn2rueJ0PL1TYVGknTCh0X0x0d9G+FNXAFep7/4uqecEZoQb/63o6rOmMuiqI09zLuHV6xhKRXinokV/MY9A==}
-    dev: false
 
   /@hexagon/base64/1.0.19:
     resolution: {integrity: sha512-+ZJdUaD9sthgMbdEiYZ5jwiTG/ZtILx0/LSDkdxi/pK/BSmJzIAT+IYuMYSKwjPdGk6odwbJVQ9H8HpepDZy9Q==}
@@ -167,14 +163,12 @@ packages:
       kv-storage-interface: 0.2.0
     dev: false
 
-  /@worker-tools/location-polyfill/0.4.1:
-    resolution: {integrity: sha512-TynpAEJ4KYIc48aWubmCCxzwdUM8uK7SBUy7/lCB34UyFcH1u6p8Rb7dzcFvZEluJcduE2TBWZGsqypVdNs58A==}
-    dependencies:
-      '@cloudflare/workers-types': 2.2.2
+  /@worker-tools/location-polyfill/0.5.0-pre.0:
+    resolution: {integrity: sha512-aDxD9NDy30pEbyCJc0BNfjSntf7ds/G5q+e6RTEbfnxzqaA12O4PPSJlg65EffTtrgmusfQ3QNtZsxYXaxKLew==}
     dev: false
 
-  /@worker-tools/middleware/0.1.0-pre.32:
-    resolution: {integrity: sha512-asgpSeW4Ag9jxUDPJoOgRTJ/zNz/KzB/NMS8D/V8qk9TyKuG0zi1lWQepWlS+2juO3XL2Ke0Dy7u6jkeL28ztw==}
+  /@worker-tools/middleware/0.1.0-pre.33:
+    resolution: {integrity: sha512-nu8CtAAcndIjhoSyxmHdY5uemA8EnUez5IY5FxnNQn04B6FEFL+FsS/IUDw4GAoUFavRjpOzFj2UckgX0T1MHQ==}
     dependencies:
       '@worker-tools/encrypted-cookie-store': 0.3.0-pre.7
       '@worker-tools/extendable-promise': 0.2.0-pre.11
@@ -205,10 +199,10 @@ packages:
     resolution: {integrity: sha512-tY9CvyegTXzI0dCmvw25CwmctFa8ojhjmTLZmvPNPF2ETT3U4o4TvgFZd3eHcr9PKB4fF55TYZeHfgIsjCQ6Qw==}
     dev: false
 
-  /@worker-tools/router/0.3.0-pre.4:
-    resolution: {integrity: sha512-cVc5hXIo9iUza5CWEbRpwqYgsiHzkgeWYcqx/VtwdbpQo9gSO7bX8G8rA7ZEyJO3giq+X5DtntwtHyXZptB5iA==}
+  /@worker-tools/router/0.3.0-pre.5:
+    resolution: {integrity: sha512-HorlRDu2TPMgYtvAOcwHwMix+aPdUR42ZBVKJCFyBGQqf30dIfH5GD9zFvtoq+pSRjFRmFNBuSeqQAzXMQSy+g==}
     dependencies:
-      '@worker-tools/middleware': 0.1.0-pre.32
+      '@worker-tools/middleware': 0.1.0-pre.33
       '@worker-tools/resolvable-promise': 0.2.0-pre.6
       '@worker-tools/response-creators': 1.2.0-pre.6
     dev: false
@@ -226,13 +220,6 @@ packages:
     dependencies:
       typed-array-utils: 0.3.0-pre.0
       whatwg-stream-to-async-iter: 0.6.2
-    dev: false
-
-  /@worker-tools/structured-json/0.1.0-pre.1:
-    resolution: {integrity: sha512-ypPZO0qAnwkaLnuYTqBElycseTxXLUYH49vqPnvUyO+ArGncyiSQqNhwuJW6ROP67xn7qSRZSt/Nouj80rzvMA==}
-    dependencies:
-      typeson: 7.0.2
-      typeson-registry: 3.0.0
     dev: false
 
   /@worker-tools/structured-json/0.1.0-pre.3:

@@ -27,7 +27,8 @@ type Session = {
 
 const isCFWorkers = navigator.userAgent?.includes('Cloudflare-Workers')
 
-const location = globalThis.location || new URL('http://localhost:8787');
+// FIXME: Need to provide correct location here when running Deno without `--location`.
+const location = self.location ?? new URL('http://localhost:8787');
 
 const users = new StorageArea('user')
 
@@ -79,7 +80,7 @@ const style = html`
   </style>
 `
 router.get('/', sessionMW, async (req, { session }) => {
-  return new HTMLResponse(html`<html>
+  return new HTMLResponse(html`<!doctype html><html lang="en">
 <body>
   ${style}
   <h1>Workers WebAuthn Example</h1>
@@ -279,7 +280,9 @@ router.post('/response', combine(sessionMW, jsonMW), async (req, { session, body
       authenticators: [Object.fromEntries(reg.authnrData)],
     }
 
-    await users.set(user.name, user)
+    await users.set(user.name, user, { 
+      expirationTtl: 60 * 60, // FIXME: Demo only, remove for real app
+    }) 
     session.loggedIn = true
     delete session.userId
     delete session.challenge;
@@ -348,6 +351,6 @@ router.recover(
   },
 )
 
-router.addEventListener('error', ev => console.warn(ev.message))
+router.addEventListener('error', ev => console.warn(ev.message));
 
-router.get('/favicon.ico', () => ok())
+router.get('/favicon.ico', () => ok());
