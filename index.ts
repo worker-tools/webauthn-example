@@ -28,7 +28,7 @@ type Session = {
 const isCFWorkers = navigator.userAgent?.includes('Cloudflare-Workers')
 
 // FIXME: Need to provide correct location here when running Deno without `--location`.
-const location = self.location ?? new URL('http://localhost:8787');
+const location = self.location ?? new URL('http://localhost:8000');
 
 const users = new StorageArea('user')
 
