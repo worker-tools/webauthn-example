@@ -33,9 +33,11 @@ const location = self.location ?? new URL('http://localhost:8000');
 const users = new StorageArea('user')
 
 const fido2 = new Fido2Lib({
-  rpId: "webauthn.qwtel.workers.dev",
-  rpName: "Workers WebAuthn Demo",
-  rpIcon: "https://workers.tools/assets/img/logo.png",
+  // ...location.hostname === 'localhost' ? {} : {
+  //   rpId: "webauthn.qwtel.workers.dev",
+  //   rpName: "Workers WebAuthn Demo",
+  //   rpIcon: "https://workers.tools/assets/img/logo.png",
+  // },
   authenticatorUserVerification: 'preferred', // setting a value prevents warning in chrome
 })
 

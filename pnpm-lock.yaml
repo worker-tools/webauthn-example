@@ -9,7 +9,7 @@ specifiers:
   '@worker-tools/response-creators': ^1.2.0-pre.6
   '@worker-tools/router': ^0.3.0-pre.5
   '@worker-tools/structured-json': ^0.1.0-pre.4
-  fido2-lib: github:qwtel/fido2-lib
+  fido2-lib: ^3.2.1
   typed-array-utils: ^0.2.4
   web-uuid: ^0.1.0-pre.1
 
@@ -22,7 +22,7 @@ dependencies:
   '@worker-tools/response-creators': 1.2.0-pre.6
   '@worker-tools/router': 0.3.0-pre.5
   '@worker-tools/structured-json': 0.1.0-pre.4
-  fido2-lib: github.com/qwtel/fido2-lib/129e72c1731d27b21b8a408fe0817fcca8cc97f9
+  fido2-lib: 3.2.1
   typed-array-utils: 0.2.4
   web-uuid: 0.1.0-pre.1
 
@@ -437,6 +437,19 @@ packages:
       esbuild-windows-arm64: 0.13.15
     dev: false
 
+  /fido2-lib/3.2.1:
+    resolution: {integrity: sha512-PloNVwMW6ns6sVi9+qN4zqY+RgPBraLeErypSw9QGOerrvV3EINf8LdXkg5Z3uUnPyyRusfo2XfB5mnJq3q3AA==}
+    engines: {node: '>=10'}
+    dependencies:
+      '@hexagon/base64': 1.0.19
+      '@peculiar/webcrypto': 1.4.0
+      asn1js: 3.0.5
+      cbor-x: 1.2.1
+      jose: 4.8.1
+      pkijs: 3.0.5
+      tldts: 5.7.81
+    dev: false
+
   /idb-key-to-string/0.2.0:
     resolution: {integrity: sha512-ZrbOyJyLjCPFlullZharfgyGDb6w6lnVJwFE/6BvVHaNLxoM6ELxrxVozdjLP5VmSq9mKjP6qXDkeV/ht1lu1A==}
     dependencies:
@@ -620,18 +633,4 @@ packages:
     dependencies:
       tr46: 3.0.0
       webidl-conversions: 7.0.0
-    dev: false
-
-  github.com/qwtel/fido2-lib/129e72c1731d27b21b8a408fe0817fcca8cc97f9:
-    resolution: {tarball: https://codeload.github.com/qwtel/fido2-lib/tar.gz/129e72c1731d27b21b8a408fe0817fcca8cc97f9}
-    name: fido2-lib
-    version: 3.2.0
-    dependencies:
-      '@hexagon/base64': 1.0.19
-      '@peculiar/webcrypto': 1.4.0
-      asn1js: 3.0.5
-      cbor-x: 1.2.1
-      jose: 4.8.1
-      pkijs: 3.0.5
-      tldts: 5.7.81
     dev: false

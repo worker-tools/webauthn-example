@@ -6,4 +6,3 @@ import 'https://ghuc.cc/worker-tools/deno-kv-storage/adapters/sqlite.ts'
 import { router } from './index.ts'
 
 serve(router.serveCallback, location ? { port: Number(location.port) } : {})
-
