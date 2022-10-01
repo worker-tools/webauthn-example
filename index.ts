@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any no-unused-vars require-await ban-unused-ignore
 import { WorkerRouter } from '@worker-tools/router'
-import { combine, basics, plainCookies, storageSession, accepts, bodyParser, contentTypes, flushed, FORM, FORM_DATA } from '@worker-tools/middleware';
+import { combine, basics, plainCookies, storageSession, accepts, bodyParser, contentTypes, flushed } from '@worker-tools/middleware';
 import { html, HTMLResponse } from '@worker-tools/html'
 import { StorageArea } from '@worker-tools/kv-storage';
 import { ok, unauthorized, badRequest, conflict, seeOther } from '@worker-tools/response-creators';
@@ -51,7 +51,7 @@ const sessionMW = combine(
 )
 
 const formMW = combine(
-  accepts([FORM, FORM_DATA]),
+  accepts(['application/x-www-form-urlencoded', 'multipart/form-data']),
   bodyParser(),
 )
 
@@ -151,7 +151,7 @@ router.get('/', sessionMW, async (req, { session }) => {
         return publicKey
       } else {
         registerButton.textContent = 'Register';
-        hint.textContent = res.statusText
+        hint.textContent = res.status + ' ' + res.statusText
       }
     }
 
@@ -165,7 +165,7 @@ router.get('/', sessionMW, async (req, { session }) => {
         return publicKey;
       } else  {
         loginButton.textContent = 'Login';
-        hint.textContent = res.statusText;
+        hint.textContent = res.status + ' ' + res.statusText
       }
     }
 
@@ -256,7 +256,9 @@ router.post('/login', combine(sessionMW, formMW), async (req, { session, body })
   if (!user) { throw unauthorized() }
 
   const options = await fido2.assertionOptions() as any;
-  options.allowCredentials = getAllowCredentials(user),
+
+  // NOTE: Removed because it breaks Apple Id in latest Safari...
+  // options.allowCredentials = getAllowCredentials(user),
 
   session.userHandle = userHandle
   session.challenge = options.challenge

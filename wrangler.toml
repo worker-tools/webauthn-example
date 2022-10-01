@@ -1,5 +1,5 @@
 name = "webauthn-dev"
-main = "cloudflare.ts"
+main = "dist/cloudflare.js"
 compatibility_date = "2022-06-06"
 compatibility_flags = ["streams_enable_constructors"]
 account_id = 'efb289061241436254219b424fcea4cf'
@@ -7,8 +7,8 @@ kv_namespaces = [
   { binding = "KV_STORAGE", id = "93fb8e6b15c14a66a9df18fac1f62c35", preview_id = "61f33c2f08c64296ae099a25d743c9f4" }
 ]
 [vars]
-  DEFAULT_KV_NAMESPACE = "KV_STORAGE"
-  WORKER_LOCATION = 'http://localhost:8787'
+DEFAULT_KV_NAMESPACE = "KV_STORAGE"
+WORKER_LOCATION = 'http://localhost:8787'
 
 [env.production]
 name = "webauthn"
@@ -16,5 +16,8 @@ kv_namespaces = [
   { binding = "KV_STORAGE", id = "93fb8e6b15c14a66a9df18fac1f62c35", preview_id = "61f33c2f08c64296ae099a25d743c9f4" }
 ]
 [env.production.vars]
-  DEFAULT_KV_NAMESPACE = "KV_STORAGE"
-  WORKER_LOCATION = 'https://webauthn.qwtel.workers.dev'
+DEFAULT_KV_NAMESPACE = "KV_STORAGE"
+WORKER_LOCATION = 'https://webauthn.qwtel.workers.dev'
+
+[build]
+command = "npm run build"
