@@ -161,6 +161,8 @@ router.get('/', sessionMW, async (req, { session }) => {
       const res = await fetch('/login', { method: 'POST', body: new FormData(form) });
       if (res.ok) {
         const publicKey = Structured.fromJSON(await res.json());
+        // allowCredentials broken in latest safari...
+        if (isSafari) delete publicKey.allowCredentials
         showResponse();
         return publicKey;
       } else  {
@@ -257,8 +259,7 @@ router.post('/login', combine(sessionMW, formMW), async (req, { session, body })
 
   const options = await fido2.assertionOptions() as any;
 
-  // NOTE: Removed because it breaks Apple Id in latest Safari...
-  // options.allowCredentials = getAllowCredentials(user),
+  options.allowCredentials = getAllowCredentials(user),
 
   session.userHandle = userHandle
   session.challenge = options.challenge
