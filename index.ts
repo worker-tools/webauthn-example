@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any no-unused-vars require-await ban-unused-ignore
 import { WorkerRouter } from '@worker-tools/router'
-import { combine, basics, plainCookies, storageSession, accepts, bodyParser, contentTypes, flushed } from '@worker-tools/middleware';
+import { combine, plainCookies, storageSession, accepts, bodyParser, contentTypes, flushed } from '@worker-tools/middleware';
 import { html, HTMLResponse } from '@worker-tools/html'
 import { StorageArea } from '@worker-tools/kv-storage';
 import { ok, unauthorized, badRequest, conflict, seeOther } from '@worker-tools/response-creators';
@@ -173,6 +173,7 @@ router.get('/', sessionMW, async (req, { session }) => {
 
     async function handleResponse(publicKey) {
       if (publicKey) {
+        hint.textContent = '';
         const cred = 'attestation' in publicKey
           ? await navigator.credentials.create({ publicKey })
           : await navigator.credentials.get({ publicKey });
@@ -182,6 +183,8 @@ router.get('/', sessionMW, async (req, { session }) => {
         if (res.ok) { 
           await timeout(250);
           location.reload();
+        } else {
+          hint.textContent = res.status + ' ' + res.statusText
         }
       }
     }
