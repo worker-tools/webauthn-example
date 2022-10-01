@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-explicit-any no-unused-vars require-await ban-unused-ignore
 import { WorkerRouter } from '@worker-tools/router'
-import { combine, plainCookies, storageSession, accepts, bodyParser, contentTypes, flushed } from '@worker-tools/middleware';
-import { html, HTMLResponse } from '@worker-tools/html'
+import { combine, signedCookies, storageSession, accepts, bodyParser, contentTypes, flushed } from '@worker-tools/middleware';
+import { html, HTMLResponse, HTMLContent } from '@worker-tools/html'
 import { StorageArea } from '@worker-tools/kv-storage';
 import { ok, unauthorized, badRequest, conflict, seeOther } from '@worker-tools/response-creators';
 import { JSONResponse } from '@worker-tools/json-fetch'
@@ -25,8 +25,6 @@ type Session = {
   challenge?: ArrayBuffer,
 }
 
-const isCFWorkers = navigator.userAgent?.includes('Cloudflare-Workers')
-
 // FIXME: Need to provide correct location here when running Deno without `--location`.
 const location = self.location ?? new URL('http://localhost:8000');
 
@@ -42,8 +40,8 @@ const fido2 = new Fido2Lib({
 })
 
 const sessionMW = combine(
-  plainCookies(),
-  isCFWorkers ? x => x : flushed(), // doesn't work in cf workers rn
+  signedCookies({ secret: "foobar" }),
+  flushed(),
   storageSession<Session>({ 
     defaultSession: { loggedIn: false }, 
     storage: new StorageArea('session'),
@@ -84,16 +82,23 @@ const style = html`
     }
   </style>
 `
-router.get('/', sessionMW, async (req, { session }) => {
-  return new HTMLResponse(html`<!doctype html><html lang="en">
+
+const pageLayout = (title: string, content: HTMLContent) => html`<!doctype html><html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>${title}</title>
 </head>
 <body>
   ${style}
-  <h1>Workers WebAuthn Example</h1>
-  <p>Password-less login for <a href="https://workers.js.org">Worker Runtimes</a>.
+  <h1>${title}</h1>
+  ${content}
+</body>
+</html>`;
+
+router.get('/', sessionMW, async (req, { session }) => {
+  return new HTMLResponse(pageLayout('Workers WebAuthn Example', html`
+  <p>Passwordless login for <a href="https://workers.js.org">Worker Runtimes</a> built with <a href="https://workers.tools">Worker Tools</a>.
      Find the <a href="https://github.com/worker-tools/webauthn-example">Source</a> on Github.</p> 
   <form method="POST">
     ${session.loggedIn 
@@ -223,9 +228,7 @@ router.get('/', sessionMW, async (req, { session }) => {
       }
     })
   </script>
-</body>
-
-</html>`)
+`));
 })
 
 router.post('/register', combine(sessionMW, formMW), async (req, { session, body }) => {
@@ -247,10 +250,10 @@ router.post('/register', combine(sessionMW, formMW), async (req, { session, body
   return new JSONResponse(Structured.toJSON(options))
 })
 
-const getAllowCredentials = (user: User) => user.authenticators.map(authr => ({
+const getAllowCredentials = (user: User) => user.authenticators.map(auth => ({
   type: 'public-key',
-  id: authr.credId,
-  transports: authr.transports,
+  id: auth.credId,
+  transports: auth.transports,
 })) as any
 
 router.post('/login', combine(sessionMW, formMW), async (req, { session, body }) => {
@@ -305,9 +308,9 @@ router.post('/response', combine(sessionMW, jsonMW), async (req, { session, body
   else if (data.response.authenticatorData != null) {
     // login
     const user = await users.get<User>(session.userHandle)
-    if (!user) throw unauthorized()
+    if (!user || !data.rawId) throw unauthorized()
 
-    const auth = user.authenticators.find(x => compareBufferSources(x.credId, data.rawId))
+    const auth = user.authenticators.find(x => x.credId && compareBufferSources(x.credId, data.rawId))
     if (!auth) throw unauthorized();
 
     // Some devices don't provide a user handle, but required by fido-lib, so we just patch it...
@@ -337,7 +340,7 @@ router.post('/response', combine(sessionMW, jsonMW), async (req, { session, body
   return badRequest()
 })
 
-router.post('/logout', sessionMW, (req, { session, handled }) => {
+router.post('/logout', sessionMW, (req, { session }) => {
   session.loggedIn = false;
   delete session.userHandle;
   const res = seeOther('/')
@@ -353,14 +356,11 @@ router.recover(
     if (type === 'application/json') { 
       return new JSONResponse({ 
         error: { status, statusText, message } 
-      }, { status, statusText }) // FIXME
+      }, { status, statusText });
     }
-    return new HTMLResponse(html`<html>
-      <body>
-        ${style}
-        Something went wrong: ${status} ${statusText} ${message}
-      </body>
-    </html>`, { status, statusText }) // FIXME
+    return new HTMLResponse(pageLayout("Something went wrong", html`
+      <span>Something went wrong: ${status} ${statusText} ${message}</span>
+    `), { status, statusText });
   },
 )
 
