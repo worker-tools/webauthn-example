@@ -1,6 +1,6 @@
 # Workers WebAuthn Example
 
-Example project for password-less login through WebAuthn in Cloudflare Workers and Deno.
+Example project for passwordless login through WebAuthn in [Worker Runtimes](https://workers.js.org) built with [Worker Tools](https://workers.tools)
 
 ## Usage
 ### Deno
@@ -12,7 +12,7 @@ deno task serve
 
 This will store sessions and users in a SQLite file at the root. 
 
-### Workers
+### Cloudflare Workers
 If you have [Miniflare](https://miniflare.dev) installed, just run
 
 ```sh

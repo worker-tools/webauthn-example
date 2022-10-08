@@ -28,23 +28,27 @@ type Session = {
 // FIXME: Need to provide correct location here when running Deno without `--location`.
 const location = self.location ?? new URL('http://localhost:8000');
 
+// FIXME: Deletes users after 1 hour
+const STORAGE_OPTS = { expirationTtl: 60 * 60 }
+
+// FIXME
+const COOKIE_SECRET = "foobar"
+
 const users = new StorageArea('user')
+const sessions = new StorageArea('session');
 
 const fido2 = new Fido2Lib({
-  // ...location.hostname === 'localhost' ? {} : {
-  //   rpId: "webauthn.qwtel.workers.dev",
-  //   rpName: "Workers WebAuthn Demo",
-  //   rpIcon: "https://workers.tools/assets/img/logo.png",
-  // },
+  rpId: location.hostname,
+  rpName: "Workers WebAuthn Demo",
   authenticatorUserVerification: 'preferred', // setting a value prevents warning in chrome
 })
 
 const sessionMW = combine(
-  signedCookies({ secret: "foobar" }),
+  signedCookies({ secret: COOKIE_SECRET }),
   flushed(),
   storageSession<Session>({ 
+    storage: sessions,
     defaultSession: { loggedIn: false }, 
-    storage: new StorageArea('session'),
   }),
 )
 
@@ -105,11 +109,11 @@ router.get('/', sessionMW, async (req, { session }) => {
       ? html`<div>
         <p>Hello, <strong>${session.userHandle}</strong>.</p>
         <button type="submit" formaction="/logout">Logout</button>
-        ${(async () => {
+        ${async () => {
           const user = Structured.toJSON(await users.get<User>(session.userHandle!))
           delete user.$types
           return html`<pre>${JSON.stringify(user, null, 2)}</pre>`;
-        })()}
+        }}
       </div>`
       : html`<div>
         <input type="text" name="user-handle" placeholder="Username" />
@@ -166,8 +170,6 @@ router.get('/', sessionMW, async (req, { session }) => {
       const res = await fetch('/login', { method: 'POST', body: new FormData(form) });
       if (res.ok) {
         const publicKey = Structured.fromJSON(await res.json());
-        // allowCredentials broken in latest safari...
-        if (isSafari) delete publicKey.allowCredentials
         showResponse();
         return publicKey;
       } else  {
@@ -253,7 +255,7 @@ router.post('/register', combine(sessionMW, formMW), async (req, { session, body
 const getAllowCredentials = (user: User) => user.authenticators.map(auth => ({
   type: 'public-key',
   id: auth.credId,
-  transports: auth.transports,
+  ...auth.transports ? { transports: auth.transports } : {},
 })) as any
 
 router.post('/login', combine(sessionMW, formMW), async (req, { session, body }) => {
@@ -261,11 +263,12 @@ router.post('/login', combine(sessionMW, formMW), async (req, { session, body })
   if (!userHandle) throw badRequest()
 
   const user = await users.get<User>(userHandle)
-  if (!user) { throw unauthorized() }
+  if (!user) throw unauthorized()
 
-  const options = await fido2.assertionOptions() as any;
+  const options = await fido2.assertionOptions() as any
 
-  options.allowCredentials = getAllowCredentials(user),
+  // Limits credentials to those associated with this user
+  options.allowCredentials = getAllowCredentials(user);
 
   session.userHandle = userHandle
   session.challenge = options.challenge
@@ -277,9 +280,6 @@ router.post('/response', combine(sessionMW, jsonMW), async (req, { session, body
   const data = Structured.fromJSON(body)
 
   if (!session.userHandle) throw unauthorized();
-
-  // FIXME: Delete users after 1 hour
-  const opts = { expirationTtl: 60 * 60 }
 
   if (data.response.attestationObject != null) {
     // register
@@ -298,7 +298,7 @@ router.post('/response', combine(sessionMW, jsonMW), async (req, { session, body
       authenticators: [Object.fromEntries(reg.authnrData)],
     }
 
-    await users.set(user.name, user, opts) 
+    await users.set(user.name, user, STORAGE_OPTS) 
     session.loggedIn = true
     delete session.userId
     delete session.challenge;
@@ -314,7 +314,7 @@ router.post('/response', combine(sessionMW, jsonMW), async (req, { session, body
     if (!auth) throw unauthorized();
 
     // Some devices don't provide a user handle, but required by fido-lib, so we just patch it...
-    data.response.userHandle ||= 'buffer' in user.id ? user.id.buffer : user.id
+    data.response.userHandle ||= ('buffer' in user.id) ? user.id.buffer : user.id
 
     const reg = await fido2.assertionResult(data, {
       allowCredentials: getAllowCredentials(user),
@@ -330,7 +330,7 @@ router.post('/response', combine(sessionMW, jsonMW), async (req, { session, body
 
     auth.counter = reg.authnrData.get('counter');
 
-    await users.set(session.userHandle, user, opts)
+    await users.set(session.userHandle, user, STORAGE_OPTS)
     session.loggedIn = true
     delete session.challenge;
 
@@ -354,9 +354,7 @@ router.recover(
     if (error) console.warn(error)
     const message = error instanceof Error ? error.message : ''
     if (type === 'application/json') { 
-      return new JSONResponse({ 
-        error: { status, statusText, message } 
-      }, { status, statusText });
+      return new JSONResponse({ error: { status, statusText, message } }, { status, statusText });
     }
     return new HTMLResponse(pageLayout("Something went wrong", html`
       <span>Something went wrong: ${status} ${statusText} ${message}</span>
